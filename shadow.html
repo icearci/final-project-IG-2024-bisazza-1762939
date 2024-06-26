@@ -96,13 +96,15 @@ void main() {
   vec3 surfaceToViewDirection = normalize(v_surfaceToView);
   vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
 
+  //spotlight computation
   float dotFromDirection = dot(surfaceToLightDirection,
                                -u_lightDirection);
   float limitRange = u_innerLimit - u_outerLimit;
   float inLight = clamp((dotFromDirection - u_outerLimit) / limitRange, 0.0, 1.0);
   float light = inLight * dot(normal, surfaceToLightDirection);
   float specular = inLight * pow(dot(normal, halfVector), u_shininess);
-
+	
+  //shadowmap
   vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
   float currentDepth = projectedTexcoord.z + u_bias;
 
@@ -114,7 +116,9 @@ void main() {
 
   // the 'r' channel has the depth values
   float projectedDepth = texture2D(u_projectedTexture, projectedTexcoord.xy).r;
-  float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+
+  //this check if the fragment is  covered by another object 
+  float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0; 
 
   vec4 texColor = texture2D(u_texture, v_texcoord) * u_colorMult;
   gl_FragColor = vec4(
@@ -123,7 +127,10 @@ void main() {
       texColor.a);
 }
 </script>
-<!-- vertex shader -->
+<!-- vertex shader 
+shader just draws a solid color and does nothing else special 
+which is all we need when rendering to the depth texture
+-->
 <script  id="color-vertex-shader" type="x-shader/x-vertex">
 attribute vec4 a_position;
 
@@ -144,18 +151,8 @@ uniform vec4 u_color;
 void main() {
   gl_FragColor = u_color;
 }
-</script><!--
-for most samples webgl-utils only provides shader compiling/linking and
-canvas resizing because why clutter the examples with code that's the same in every sample.
-See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
-and https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
-for webgl-utils, m3, m4, and webgl-lessons-ui.
--->
-<!-- <script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/primitives.js"></script>
- -->
+</script>
+
 
 
 

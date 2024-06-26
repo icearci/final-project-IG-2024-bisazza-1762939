@@ -53,7 +53,12 @@ function main() {
       2, 6,
     ],
   });
-///////////////////////////////////// SLIME     /////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////                                                                         /////////
+  ///////////////                             OBJ initialization                          /////////
+  ///////////////                                                                         /////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   const slime  =  new SlimeCube(gl);
   for (var i=0; i<NUM_SKULL_TILES;i++)
 	{
@@ -92,8 +97,12 @@ for (var i=0; i<NUM_FLOOR_TILES;i++){
 for (var i=0; i<NUM_WALL_TILES;i++){
   wallArray.push(new Wall(gl,i));
 }
-  
-  //slime texture 
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////                                                                         /////////
+  ///////////////                             TEXTURES                                    /////////
+  ///////////////                                                                         /////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   const img = document.getElementById("cube-texture")
   const slime_texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, slime_texture);
@@ -128,6 +137,13 @@ for (var i=0; i<NUM_WALL_TILES;i++){
   gl.generateMipmap(gl.TEXTURE_2D);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////                                                                         /////////
+  ///////////////                            depthtexuter                                 /////////
+  ///////////////                                                                         /////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //we create a texture then a framebuffer and a attach the texture to the framebuffer as a DEPTH_ATTACHMENT
   const depthTexture = gl.createTexture();
   const depthTextureSize = 512;
   gl.bindTexture(gl.TEXTURE_2D, depthTexture);
@@ -156,7 +172,7 @@ for (var i=0; i<NUM_WALL_TILES;i++){
       0);                   // mip level
 
   // create a color texture of the same size as the depth texture
-  // see article why this is needed_
+  // done because of webgl internal reasons (in order to work on all browser)
   const unusedTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, unusedTexture);
   gl.texImage2D(
@@ -226,7 +242,7 @@ for (var i=0; i<NUM_WALL_TILES;i++){
   const fieldOfViewRadians = degToRad(60);
 
   
-
+ //start the simulation
   if(settings.run == 1){slime.startSimulation(slime);}
 
 
@@ -450,7 +466,7 @@ for (var i=0; i<NUM_WALL_TILES;i++){
   ///////////////                                                                         /////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   function render(time) {
-    time *= 0.02;  // convert to seconds era 0.001
+    time *= 0.02;  //timestep 20 --  convert to seconds 
 
 
     if(settings.run == 1){slime.startSimulation(slime);}

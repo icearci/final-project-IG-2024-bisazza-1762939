@@ -245,22 +245,15 @@ class SlimeCube {
 			if (i !== j) { // Skip comparing a vertex to itself
 				const vertex2 = pos[j];
 				const distance = this.euclideanDistance(vertex1, vertex2);
-				// console.log("[DEBUG 0] distance ", distance);
-				// console.log("[DEBUG 0] threshold ", threshold);
+	
 				if (distance <= threshold) {
-					// console.log("[DEBUG 1] ", j , " in immediate neighbor of " ,i );
 				neighborIndices.immediateNeighbors.push(j); // Immediate neighbor
-				} else if (distance <=0.0001+(Math.pow(3, 0.5) * threshold)) { // Adjust range for diagonal neighbors (optional)
-					// console.log("[DEBUG 2] ", j , " in diagonal  neighbor of " ,i);
-					// console.log("[DEBUG 2] , distance ",distance ,"<= (Math.pow(3, 0.5) * threshold) " , (Math.pow(3, 0.5) * threshold));
-
+				} else if (distance <=0.0001+(Math.pow(3, 0.5) * threshold)) { 
 				neighborIndices.diagonalNighboors.push(j); // Diagonal neighbor
 				}
 				else if (distance <= 0.001+ ( 2 * (Math.pow(3, 0.5) * threshold)))
-				{ // Adjust range for 2-dist  neighbors (optional)
-					// console.log("[DEBUG 3] ", j , " in 2-dist neighbor of " ,i);
-					// console.log("[DEBUG 3] , distance ",distance ,"<= 2 * (Math.pow(3, 0.5) * threshold) " ,2 * (Math.pow(3, 0.5) * threshold));
-				neighborIndices.twoDistNeighboors.push(j); //2-dsit neighbor
+				{ 
+					neighborIndices.twoDistNeighboors.push(j); //2-dsit neighbor
 				}
 
 			}
@@ -460,9 +453,7 @@ class SlimeCube {
 
 		// update the position buffer
 		updateBuffer( this.buffers.positionBuffer, this.mesh.face, this.pos );
-		// console.log("this.parts[0].bufferInfo.attribs.a_position",this.parts[0].bufferInfo.attribs.a_position);
-		// updateBuffer( this.parts[0].bufferInfo.attribs.a_position, this.mesh.face, this.pos );
-
+		
 		// update normals
 		for ( var i=0; i<this.nrm.length; ++i ) this.nrm[i].init(0,0,0);
 		for ( var i=0; i<this.mesh.face.length; ++i ) {
@@ -483,21 +474,12 @@ class SlimeCube {
 		}
 		for ( var i=0; i<this.nrm.length; ++i ) this.nrm[i].normalize();
 
-		// console.log("this.parts[0].bufferInfo.attribs.a_normal",this.parts[0].bufferInfo.attribs.a_normal);
-		// updateBuffer( this.parts[0].bufferInfo.attribs.a_normal, this.mesh.nfac, this.nrm );
+		
 		updateBuffer( this.buffers.normalBuffer, this.mesh.nfac, this.nrm );
 		
 		const mesh_data = {position : this.buffers.positionBuffer,texcoord:  this.buffers.texCoordBuffer,normal:  this.buffers.normalBuffer};
 		const bufferInfo_mesh = webglUtils.createBufferInfoFromArrays(this.gl, mesh_data);
-		// console.log("bufferInfo_mesh",bufferInfo_mesh);
 		this.parts[0].bufferInfo = bufferInfo_mesh;
-		
-		// // Update the mesh drawer and redraw scene
-		// meshDrawer.setMesh( this.buffers.positionBuffer, this.buffers.texCoordBuffer, this.buffers.normalBuffer );
-		
-		// // pointDrawer.updatePoint();
-		// UpdateCubeViewMatrices(this.pos);
-		// DrawScene();
 		
 		
 	}
@@ -511,7 +493,6 @@ class SlimeCube {
 	{
 		
 		// Update positions and velocities
-		// var timestep = document.getElementById('timestep').value;
 		var timestep = 20;
 		const dt = timestep / 1000;	// time step in seconds
 		const structDamping = this.slider_structDamping * this.structStiffness * dt;
@@ -601,7 +582,6 @@ function average_center(vertices){
 	let centerZ = 0;
 	let numVertices = 0; // To keep track of the number of vertices
 	for (let i = 0; i < vertices.length; i ++) {
-		// Assuming your vertex data is an array where each vertex has x, y, and z components stored consecutively
 		centerX += vertices[i].x;
 		centerY += vertices[i].y;
 		centerZ += vertices[i].z;
@@ -627,7 +607,7 @@ function average_center(vertices){
 ////////////																						///////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-const obj_numbers = [0,1,2]; // Your 3 numbers
+const obj_numbers = [0,1,2]; 
 
 function pickRandomNumber(numbers) {
 	const maxIndex = numbers.length - 1; // Last index of the array
@@ -644,7 +624,6 @@ var skullArray= [];
 			var rand1  =Math.random();
 			var rand2  =Math.random();
 			this.spacing = [(1+Math.random()) * 3,(1+Math.random()) * 3];
-			// console.log("spcaing for ", this.i, this.spacing)
 			if(rand1>0.5){
 				this.spacing[0]=-this.spacing[0]
 			}
@@ -667,34 +646,8 @@ var skullArray= [];
                     }
                    
 
-			// this.setMesh( document.getElementById('skull.obj').text );
 			this.stop_drawing=false;
-			this.r;
-			this.c;
-			if(NUM_SKULL_TILES == 9){
-				if(this.i < 3){
-					this.r=0;
-					this.c=this.i;
-				}
-				else if(this.i < 6){
-					this.r=1;
-					this.c=this.i-3;
-				}
-				else if(this.i < 9){
-					this.r=2;
-					this.c=this.i-6;
-				}
-			}
-			else if(NUM_SKULL_TILES == 4){
-				if(this.i < 2){
-					this.r=0;
-					this.c=this.i;
-				}
-				else if(this.i < 4){
-					this.r=1;
-					this.c=this.i-2;
-				}
-			}
+			
 		}
 		stopDrawing()
 		{
@@ -703,7 +656,6 @@ var skullArray= [];
 		setMesh( objdef )
 		{
 		this.obj = parseOBJ( objdef);
-		//questo è il parser degl ihomework , che mi da la face e un modo per fare l'update delle normals 
 		
 		this.mesh = new ObjMesh;
 		this.mesh.parse( objdef); 
@@ -775,11 +727,7 @@ var skullArray= [];
 				this.r=1;
 				this.c=this.i-2;
 			}
-			// else {
-			// 	//higher step
-			// 	this.r = 0;
-			// 	this.c = this.i;
-			// }
+			
 			
 		}
 		setMesh( objdef )
@@ -900,7 +848,6 @@ class Wall{
 	setMesh( objdef )
 	{
 		this.obj = parseOBJ( objdef);
-		//questo è il parser degl ihomework , che mi da la face e un modo per fare l'update delle normals 
 		
 		this.mesh = new ObjMesh;
 		this.mesh.parse( objdef); 
@@ -915,9 +862,7 @@ class Wall{
 
 	
 		var maxSize = Math.max( size[0], size[1], size[2] );
-		// var scale = 0.4/maxSize;
 		this.scale = 1/maxSize;
-		// console.log("scale",this.scale, maxSize);
 
 		this.parts = this.obj.geometries.map(({data}) => {
 		
@@ -1800,7 +1745,6 @@ if(!applyForwardForce && !applyLeftForce &&!applyRightForce  &&!applyBackwardFor
 			else{tempVelocities[i].y = 0.0;}
 	  }
 	  
-	//[TEST]   ADDED  *2 TO ACCOUNT FOR LARGER BOX . IS FOR TESTING , TO BE REMOVED 
 	  // Check for left collision (x-axis)
 
 	  const mult_size = 10 ;
