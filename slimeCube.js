@@ -1207,13 +1207,14 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 {
 
 	
+
 	// [TO-DO] Compute the total force of each particle
 	var forces = Array(positions.length).fill(new Vec3(0, 0, 0)); // Initialize forces array with zeros
 	// const forces = initializeForces(positions);
-	const forwardForce = new Vec3( 0, 0, forwardForceVal );
+	const forwardForce = new Vec3( 0, 0, -forwardForceVal );
     const leftForce = new Vec3(-leftForceVal, 0, 0);
     const rightForce = new Vec3(rightForceVal, 0, 0);
-    const backwardForce = new Vec3(0, 0,-backwardForceVal);
+    const backwardForce = new Vec3(0, 0,+backwardForceVal);
 	const jumpForce = new Vec3(0, -jumpForceVal, 0);
 	
 	
@@ -1233,7 +1234,17 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////								DECELERATION PT.1/3	 									///////////////
-
+//debug
+if(!applyForwardForce && !applyLeftForce &&!applyRightForce  &&!applyBackwardForce){
+	for (var i = 0; i < positions.length; i++) {
+		if(faceArray[5].includes(i)){
+		if(tempVelocities[i].x!=0 ||tempVelocities[i].z!=0  ) {
+			tempVelocities[i].x=0 ;
+			tempVelocities[i].z=0 ;
+		}
+	}
+	}
+}
 
 ////////////////////////////////////////////FORWARD////////////////////////////////////////////////////////////////
 
@@ -1241,15 +1252,21 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 	for (var i = 0; i < positions.length; i++) {
 		if(!applyForwardForce && faceArray[5].includes(i) && accumulated_forward <= 0 && forward_decelerating && stop_forward_dec){
 			//se ci sono movimenti in avanti . li stoppo
-			if (tempVelocities[i].z>0){
-				tempVelocities[i].z=0;
-			}
+			
+			tempVelocities[i].z=0;
+			
+			accumulated_forward = 0;
+			forward_decelerating = false;
 		}
 	}
 	//check per la decelerazione
-	if(!applyForwardForce){ //viene rilasciato W
-		if(stop_forward_dec && !forward_decelerating){// se è true , allora non c'è decelerazione
-			stop_forward_dec = false;// si pò calcolare la dec
+	for (var i = 0; i < positions.length; i++) {
+		if(!applyForwardForce && faceArray[5].includes(i) ){ //viene rilasciato W
+			if(stop_forward_dec && !forward_decelerating){// se è true , allora non c'è decelerazione
+				stop_forward_dec = false;// si pò calcolare la dec
+				tempVelocities[i].z=0;
+
+			}
 		}
 	}
 
@@ -1258,16 +1275,21 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 	//check per movimenti inintenzionali 
 	for (var i = 0; i < positions.length; i++) {
 		if(!applyBackwardForce && faceArray[5].includes(i) && accumulated_backward <= 0 && backward_decelerating && stop_backward_dec){
-			//se ci sono movimenti in avanti . li stoppo
-			if (tempVelocities[i].z<0){
-				tempVelocities[i].z=0;
-			}
+			//se ci sono movimenti in indietro . li stoppo
+			
+			tempVelocities[i].z=0;
+			
+			accumulated_backward = 0;
+			backward_decelerating  =false;
 		}
 	}
 	//check per la decelerazione
-	if(!applyBackwardForce){ //viene rilasciato W
-		if(stop_backward_dec && !backward_decelerating){// se è true , allora non c'è decelerazione
-			stop_backward_dec = false;// si pò calcolare la dec
+	for (var i = 0; i < positions.length; i++) {
+		if(!applyBackwardForce && faceArray[5].includes(i)){ //viene rilasciato W
+			if(stop_backward_dec && !backward_decelerating){// se è true , allora non c'è decelerazione
+				stop_backward_dec = false;// si pò calcolare la dec
+				tempVelocities[i].z=0;
+			}
 		}
 	}
 
@@ -1279,9 +1301,10 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 	for (var i = 0; i < positions.length; i++) {
 		if(!applyLeftForce && faceArray[5].includes(i) && accumulated_left <= 0 && left_decelerating && stop_left_dec){
 			//se ci sono movimenti in avanti . li stoppo
-			if (tempVelocities[i].x<0){
-				tempVelocities[i].x=0;
-			}
+			tempVelocities[i].x=0;
+			accumulated_left =0;
+			left_decelerating = false;
+
 		}
 	}
 	//check per la decelerazione
@@ -1290,24 +1313,40 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 			stop_left_dec = false;// si pò calcolare la dec
 		}
 	}
-
+	for (var i = 0; i < positions.length; i++) {
+		if(!applyLeftForce && faceArray[5].includes(i)) {//viene rilasciato W
+			if(stop_left_dec && !left_decelerating){// se è true , allora non c'è decelerazione
+				stop_left_dec = false;// si pò calcolare la dec
+				tempVelocities[i].x=0;
+				}
+				
+			}
+		}
+	
 
 
 ////////////////////////////////////////////RIGHT////////////////////////////////////////////////////////////////
 
 	//check per movimenti inintenzionali 
-	for (var i = 0; i < positions.length; i++) {
+	for (var i = 0; i < positions.length; i++) { //passo 5
 		if(!applyRightForce && faceArray[5].includes(i) && accumulated_right <= 0 && right_decelerating && stop_right_dec){
 			//se ci sono movimenti in avanti . li stoppo
-			if (tempVelocities[i].x>0){
-				tempVelocities[i].x=0;
-			}
+			
+			tempVelocities[i].x=0;
+				// console.log("passo 5","accumulated_right",accumulated_right, "right_decelerating", right_decelerating)
+			
+			accumulated_right =0;
+			right_decelerating = false;
 		}
 	}
 	//check per la decelerazione
-	if(!applyRightForce){ //viene rilasciato W
-		if(stop_right_dec && !right_decelerating){// se è true , allora non c'è decelerazione
-			stop_right_dec = false;// si pò calcolare la dec
+	//passo 1 
+	for (var i = 0; i < positions.length; i++) { //
+		if(!applyRightForce && faceArray[5].includes(i)){ //viene rilasciato W
+			if(stop_right_dec && !right_decelerating){// se è true , allora non c'è decelerazione
+				stop_right_dec = false;// si pò calcolare la dec
+				tempVelocities[i].x=0;
+			}
 		}
 	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1438,7 +1477,7 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 					forward_deceleration = accumulated_forward*0.1/100
 					forward_decelerating = true;
 				}
-				forces[i]  = forces[i].add(new Vec3(0, 0,-forward_deceleration));
+				forces[i]  = forces[i].add(new Vec3(0, 0,+forward_deceleration));
 				accumulated_forward-=forward_deceleration;
 			
 				
@@ -1466,7 +1505,7 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 					backward_deceleration = accumulated_backward*0.1/100
 					backward_decelerating = true;
 				}
-				forces[i]  = forces[i].add(new Vec3(0, 0,backward_deceleration));
+				forces[i]  = forces[i].add(new Vec3(0, 0,-backward_deceleration));
 				accumulated_backward-=backward_deceleration;
 			}
 			
@@ -1484,6 +1523,8 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 				forces[i]  = forces[i].add(leftForce);
 				accumulated_left+=leftForceVal;
 				left_decelerating = false;
+				// console.log("passo 2","accumulated_left",accumulated_left, "left_decelerating", left_decelerating)
+
 			}
 		}
 		else if (accumulated_left>0){
@@ -1494,6 +1535,8 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 				}
 				forces[i]  = forces[i].add(new Vec3( left_deceleration,0, 0,));
 				accumulated_left-=left_deceleration;
+				// console.log("passo 3","accumulated_left",accumulated_left, "left_decelerating", left_decelerating,"left_deceleration",left_deceleration)
+
 			}
 			
 		}
@@ -1503,7 +1546,7 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 // stop_right_dec = true;
 // right_decelerating = false;
 		/////////////////////////////////////////RIGHT//////////////////////////////////////////////////////
-		if (applyRightForce){
+		if (applyRightForce){ //passo 2
 			//face 1 is back 
 			if(faceArray[5].includes(i)){
 				forces[i]  = forces[i].add(rightForce);
@@ -1511,7 +1554,7 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 				right_decelerating = false;
 			}
 		}
-		else if (accumulated_right>0){
+		else if (accumulated_right>0){ //passo 3 
 			if(faceArray[5].includes(i)){
 				if (!right_decelerating && !stop_right_dec){ 
 					right_deceleration = accumulated_right *0.1/100
@@ -1537,6 +1580,9 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 		}
 		else if (accumulated_jump>0){
 			if(faceArray[4].includes(i)){
+				if(accumulated_jump>50){//limita la forza di salto
+					accumulated_jump = 50;
+				}
 				forces[i]  = forces[i].add(new Vec3(0,accumulated_jump,0));
 			}
 		}
@@ -1618,7 +1664,9 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 			if(accumulated_left <= 0 && left_decelerating && !stop_left_dec){  
 				left_deceleration = 0;												
 				stop_left_dec = true;										
-				tempVelocities[i].x =0;											
+				tempVelocities[i].x =0;	
+				// console.log("passo 4","left_deceleration",left_deceleration,"stop_left_dec",stop_left_dec)
+										
 			}																	
 		}	
 
@@ -1628,11 +1676,12 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 // stop_right_dec = true;
 // right_decelerating = false;
 		//////////////////////////////////RIGHT///////////////////////////////////////////
-		if(faceArray[5].includes(i)){											
+		if(faceArray[5].includes(i)){			//passo 4 								
 			if(accumulated_right <= 0 && right_decelerating && !stop_right_dec){  
 				right_deceleration = 0;												
 				stop_right_dec = true;										
-				tempVelocities[i].x =0;											
+				tempVelocities[i].x =0;		
+									
 			}																	
 		}	
 
@@ -1757,41 +1806,66 @@ function SimTimeStep( dt, positions, velocities, structSprings,shearSprings,bend
 	  const mult_size = 10 ;
 	  if (pos.x - epsilon < -groundDepth*mult_size) {
 			if (bounce){tempVelocities[i].x = tempVelocities[i].y * -restitution;}
-			else{tempVelocities[i].x = 0.0;}
+			else{
+				tempVelocities[i].x = 0.0;
+				accumulated_left = 0;
+				accumulated_right  =0;
+
+			}
 		}
   
 	  // Check for right collision (x-axis)
 	  if (pos.x + epsilon > groundDepth*mult_size) {
 			if (bounce){tempVelocities[i].x = tempVelocities[i].y * -restitution;}
-			else{tempVelocities[i].x = 0.0;}
+			else{
+				tempVelocities[i].x = 0.0;
+				accumulated_right  =0;
+				accumulated_left = 0;
+
+			}
 	  }
 	  
 	  // Check for back collision (z-axis)
 	  if (pos.z - epsilon < -groundDepth*mult_size) {
 			if (bounce){tempVelocities[i].z = tempVelocities[i].y * -restitution;}
-			else{tempVelocities[i].z = 0.0;}
+			else{
+				tempVelocities[i].z = 0.0;
+				accumulated_backward = 0;
+				accumulated_forward = 0;
+
+			}
 	  }
   
 	  // Check for front collision (z-axis)
 	  if (pos.z + epsilon >groundDepth*mult_size) {
 			if (bounce){tempVelocities[i].z = tempVelocities[i].y * -restitution;}
-			else{tempVelocities[i].z = 0.0;}
+			else{
+				tempVelocities[i].z = 0.0;
+				accumulated_forward = 0;
+				accumulated_backward = 0;
+			}
+
 	  }
 
 	  //check for left top square 
-	  if (pos.x + epsilon <0 && pos.z + epsilon < 0) {
+	  if (pos.x + epsilon <0.5 && pos.z + epsilon < 0.5) {
 		// console.log(pos.y );
 
-		// 0 is  the groud depth of elevated step
-		if (pos.y + epsilon <3 && pos.x  < -0.5 && pos.z  < -0.5){
+		// 3  is  the groud depth of elevated step
+		if (pos.y + epsilon <3 && pos.x  < -0.3 && pos.z  < -0.3){
 			var penetrationDepth = Math.abs(pos.y + 0);
 			tempPosition[i].y = 3 ;//+ restitution * penetrationDepth;
 			tempVelocities[i].y = 0.0;
 		}
 		if (pos.y <0 ){	
-			console.log("[left top square  collision (z-axis)]",pos);
-		tempVelocities[i].x = 0.0;
-		tempVelocities[i].z = 0.0;
+			// console.log("[left top square  collision (z-axis)]",pos);
+			tempVelocities[i].x = 0.0;
+			tempVelocities[i].z = 0.0;
+
+			accumulated_forward = 0;
+			accumulated_backward = 0;
+			accumulated_left = 0;
+			accumulated_right = 0;
 	}
 	}
 	
